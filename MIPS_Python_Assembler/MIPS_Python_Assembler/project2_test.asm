@@ -3,8 +3,8 @@
 # Author: Joe Komosa
 #
 
-	lui	$8, 0xfa19			# Initialize B
-	ori	$8, $8, 0xe366
+	#lui	$8, 0xfa19			# Initialize B
+	#ori	$8, $8, 0xe366
 	
 #
 # Part A
@@ -21,29 +21,29 @@ continue:
 	addi	$10, $10, 1			# A++
 	multu	$10, $8				# A * B
 	addi	$14, $0, 5			# Initialize 5 count
-	beq	$14, $14, first_pass		# Skip on first pass
+	#beq	$14, $14, first_pass		# Skip on first pass
 multi_fold:
 	multu	$13, $8
 first_pass:
-	mflo	$11					
-	mfhi	$12
-	xor	$13, $11, $12			# Lo ^ Hi --> $13
+	#mflo	$11					
+	#mfhi	$12
+	#xor	$13, $11, $12			# Lo ^ Hi --> $13
 	addi	$14, $14, -1			# Count - 1
-	bne	$14, $0, multi_fold
+	#bne	$14, $0, multi_fold
 
-	andi	$21, $13, 0xffff		# Last 2 folding operations
+	#andi	$21, $13, 0xffff		# Last 2 folding operations
 	srl	$22, $13, 16
-	xor	$13, $21, $22			# C = A5[31:16] ^ A5[15:0]
-	andi	$21, $13, 0xff
+	#xor	$13, $21, $22			# C = A5[31:16] ^ A5[15:0]
+	#andi	$21, $13, 0xff
 	srl	$22, $13, 8
-	xor	$13, $21, $22			# C = C[15:8] ^ C[7:0]
+	#xor	$13, $21, $22			# C = C[15:8] ^ C[7:0]
 	
 	sb	$13, 0($23)			# val[$13] --> current address
 	addi	$23, $23, 1			# Address + 1 (8-bits)
 	addi	$22, $0, 100			# Check if counter <= 100
-	bne	$22, $10, continue		# Loop if count <= 100
+	#bne	$22, $10, continue		# Loop if count <= 100
 
-	xor	$21, $0, $23			# Store address for comparison in part B.ii
+	#xor	$21, $0, $23			# Store address for comparison in part B.ii
 		
 #
 # Part B.i
@@ -57,13 +57,13 @@ first_pass:
 	
 nxt_byte1:
 	lbu	$11, 0($23)			# Load current byte from memory
-	sltu	$12, $11, $10			# currentVal < maxVal = ?
-	bne	$12, $0, skip			# False = skip
+	#sltu	$12, $11, $10			# currentVal < maxVal = ?
+	#bne	$12, $0, skip			# False = skip
 	lbu	$10, 0($23)			# True = store maxVal
-	sw	$23, 100($0)			# Store address of current maxVal into M[0x2000]
+	sw	$23, 0x2000($0)			# Store address of current maxVal into M[0x2000]
 skip:
 	addi	$23, $23, -1			# Address - 1 (8-bits)
-	bne	$23, $22, nxt_byte1		# Branch if $23 != 0x2020
+	#bne	$23, $22, nxt_byte1		# Branch if $23 != 0x2020
 	
 	sb	$10, 0x2004($0)			# Store maxVal into M[0x2004]
 	
@@ -81,15 +81,15 @@ nxt_byte2:
 	addi	$13, $0, 4			# 4 count for 4 comparisons (3 zeros) 			
 	addi	$23, $23, 1			# Address + 1 (8-bits)
 nxt_bit:
-	andi	$12, $11, 0x1f			# Match?
-	bne	$12, $10, no_match1
+	#andi	$12, $11, 0x1f			# Match?
+	#bne	$12, $10, no_match1
 	addi	$14, $14, 1			# yesCnt++
-	beq	$0, $0, nxt_byte2		# Quit and load next byte
+	#beq	$0, $0, nxt_byte2		# Quit and load next byte
 no_match1:	
 	srl	$11, $11, 1			# Shift right 1 bit
 	addi	$13, $13, -1			# Count--
-	bne	$13, $0, nxt_bit 
-	bne	$23, $21, nxt_byte2 		# Branch if $23 != last byte in memory
+	#bne	$13, $0, nxt_bit 
+	#bne	$23, $21, nxt_byte2 		# Branch if $23 != last byte in memory
 	
 	sw	$14, 0x2008($0)			# Store yesCnt into M[0x2008]	
 
@@ -101,26 +101,26 @@ no_match1:
 # | $22 = addr of compByte | $23 = ith address |
 #
 
-	ori	$22, $0, 0x2020			# Set base data address	
+	#ori	$22, $0, 0x2020			# Set base data address	
 nxt_comp_byte:
 	addi	$14, $0, 0			# Initialize collision count
 	lbu	$10, 0($22)			# Load current byte from memory
-	ori	$23, $0, 0x2020
+	#ori	$23, $0, 0x2020
 nxt_byte3:
 	lbu	$11, 0($23) 			# Load ith byte from memory
-	bne	$11, $10, no_match2
+	#bne	$11, $10, no_match2
 	addi	$14, $14, 1			# yesCnt++
 no_match2:
 	addi	$23, $23, 1			# Address++
-	bne	$23, $21, nxt_byte3
+	#bne	$23, $21, nxt_byte3
 	addi	$22, $22, 1			# Address++ of compare byte
-	sltu	$12, $14, $15			# compare with current max collision count
-	bne	$12, $0, LTmax
-	beq	$14, $15, LTmax			# Go with first occuring pattern
+	#sltu	$12, $14, $15			# compare with current max collision count
+	#bne	$12, $0, LTmax
+	#beq	$14, $15, LTmax			# Go with first occuring pattern
 	sw	$14, 0x2014($0)			# Store new collision count into M[0x2014]
-	xor	$15, $0, $14			# Hold current max
+	#xor	$15, $0, $14			# Hold current max
 	sw	$10, 0x2010($0)			# Store value of max collision/match 
 LTmax:
-	beq	$22, $21, end			# Continue until all bytes compared
-	beq	$23, $21, nxt_comp_byte		
+	#beq	$22, $21, end			# Continue until all bytes compared
+	#beq	$23, $21, nxt_comp_byte		
 end:
