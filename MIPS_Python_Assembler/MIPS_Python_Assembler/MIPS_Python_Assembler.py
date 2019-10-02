@@ -85,8 +85,8 @@ def main():
         elif(line[0:4] == "andi"): # andi rt, rs, imm
             line = line.replace("andi","")
             line = line.split(",")
-            rs = format(int(line[0]),'05b')
-            rt = format(int(line[1]),'05b')
+            rt = format(int(line[0]),'05b')
+            rs = format(int(line[1]),'05b')
             imm = line[2]
             if(imm.count("0x")): # If offset = hex value \/
                 for item in range(imm.count("0x")):
@@ -99,9 +99,9 @@ def main():
         elif(line[0:3] == "xor"): # xor rd, rs, rt
             line = line.replace("xor","")
             line = line.split(",")
-            rs = format(int(line[0]),'05b')
-            rt = format(int(line[1]),'05b')
-            rd = format(int(line[2]),'05b')
+            rd = format(int(line[0]),'05b')
+            rs = format(int(line[1]),'05b')
+            rt = format(int(line[2]),'05b')
             f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100110')))
 
         elif(line[0:3] == "ori"): # ori rt, rs, imm
@@ -232,8 +232,13 @@ def main():
             else:
                 f.write(convertToHex(str('10101100000') + str(rt) + str('0000000000000000')))
 
-        elif(line[0:3] == "beq"): # beq rs, rt, label
-            line = line.replace("beq","")
+        elif(line[0:3] == "beq" or line[0:3] == "bne"): # beq rs, rt, label | bne rs, rt, label
+            if (line[0:3] == "beq"):
+                op = '000100'
+                line = line.replace("beq","")
+            else:
+                op = '000101'
+                line = line.replace("bne","")
             line = line.split(",")
             rs = format(int(line[0]),'05b')
             rt = format(int(line[1]),'05b')
@@ -254,17 +259,8 @@ def main():
                             if num in labelIndex:
                                 innerLineCnt += 1 # Counts the lines below current label until match starting from index
                         imm = jumpAmount - innerLineCnt
-                    f.write(convertToHex(str('000100') + str(rs) + str(rt) + str(format(int(imm),'016b'))))
-                    #print(convertToHex(str('000100') + str(rs) + str(rt) + str(format(int(imm),'016b'))))
-
-        elif(line[0:3] == "bne"): # bne rs, rt, label
-            line = line.replace("bne","")
-            line = line.split(",")
-            rs = format(int(line[0]),'05b')
-            rt = format(int(line[1]),'05b')
-            for i in range(len(labelName)):# Branching to label
-                if(labelName[i] == line[2]):
-                    f.write(convertToHex('000101') + str(rs) + str(rt) + str(format(int(labelIndex[i],2),'016b')))
+                    f.write(convertToHex(str(op) + str(rs) + str(rt) + str(format(int(imm),'016b'))))
+                    #print(convertToHex(str(op) + str(rs) + str(rt) + str(format(int(imm),'016b'))))
 
         elif(line[0:4] == "sltu"): # SLTU
             line = line.replace("sltu","")
