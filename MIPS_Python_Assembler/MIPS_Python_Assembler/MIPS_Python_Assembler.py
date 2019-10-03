@@ -9,7 +9,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
             if(line.count("#") == 0): # Ensures ":" inside comment is not counted as label
                 labelName.append(line[0:line.index(":")]) # append the label name
                 labelIndex.append(lineCount) # append the label's index
-                #asm[lineCount] = line[line.index(":")+1:] # Creates Bug because it removes label names thus altering the labelIndex
+                #asm[lineCount] = line[line.index(":")+1:] # Creates Bug because it removes label names thus altering the lineCount and labelIndex
         lineCount += 1
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -48,11 +48,11 @@ def main():
         line = line.replace(" ","")
         line = line.replace("zero","0") # assembly can also use both $zero and $0
         lineCount += 1 # Counts each line/iteration
-        #print(line, lineCount)
         innerLineCnt = 0
         jumpAmount = 0
 
-        if(line[0:5] == "addiu"): # addiu rt, rs, imm
+    # addiu rt, rs, imm
+        if(line[0:5] == "addiu"): 
             line = line.replace("addiu","")
             line = line.split(",")
             rt = format(int(line[0]),'05b')
@@ -60,7 +60,8 @@ def main():
             imm = format(int(line[2]),'016b')
             f.write(convertToHex(str('001001') + str(rs) + str(rt) + str(imm)))
 
-        elif(line[0:4] == "addi"): # addi rt, rs, imm 
+    # addi rt, rs, imm 
+        elif(line[0:4] == "addi"): 
             line = line.replace("addi","")
             line = line.split(",")
             imm = line[2]
@@ -74,7 +75,8 @@ def main():
             rt = format(int(line[0]),'05b')
             f.write(convertToHex(str('001000') + str(rs) + str(rt) + str(imm)))
 
-        elif(line[0:3] == "add"): # add rd, rs, rt
+    # add rd, rs, rt
+        elif(line[0:3] == "add"): 
             line = line.replace("add","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
@@ -82,7 +84,8 @@ def main():
             rt = format(int(line[2]),'05b')
             f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100000')))
 
-        elif(line[0:4] == "andi"): # andi rt, rs, imm
+    # andi rt, rs, imm
+        elif(line[0:4] == "andi"): 
             line = line.replace("andi","")
             line = line.split(",")
             rt = format(int(line[0]),'05b')
@@ -96,7 +99,8 @@ def main():
                 imm = format(int(imm),'016b') if (int(imm) >= 0) else format(65536 + int(imm),'016b')
             f.write(convertToHex(str('001100') + str(rs) + str(rt) + str(imm)))
 
-        elif(line[0:3] == "xor"): # xor rd, rs, rt
+    # xor rd, rs, rt
+        elif(line[0:3] == "xor"): 
             line = line.replace("xor","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
@@ -104,7 +108,8 @@ def main():
             rt = format(int(line[2]),'05b')
             f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100110')))
 
-        elif(line[0:3] == "ori"): # ori rt, rs, imm
+    # ori rt, rs, imm
+        elif(line[0:3] == "ori"): 
             line = line.replace("ori","")
             line = line.split(",")
             rs = format(int(line[0]),'05b')
@@ -117,39 +122,37 @@ def main():
             else: # If offset in decimal and/or negative
                 imm = format(int(imm),'016b') if (int(imm) >= 0) else format(65536 + int(imm),'016b')
             f.write(convertToHex(str('001101') + str(rs) + str(rt) + str(imm)))
-            
-        elif(line[0:1] == "j"): # JUMP
+    
+    # j target                            
+        elif(line[0:1] == "j"):
             line = line.replace("j","")
             line = line.split(",")
-
             # Since jump instruction has 2 options:
             # 1) jump to a label
             # 2) jump to a target (integer)
             # We need to save the label destination and its target location
-
             if(line[0].isdigit()): # First,test to see if it's a label or a integer
                 f.write(convertToHex(str('000010') + str(format(int(line[0]),'026b'))))
-
             else: # Jumping to label
                 for i in range(len(labelName)):
                     if(labelName[i] == line[0]):
                        f.write(convertToHex(str('000010') + str(format(int(labelIndex[i]),'026b'))))
 
-        elif(line[0:5] == "multu"): # MULTU
-            line = line.replace("multu","")
+    # multu rs, rt | mult rs, rt
+        elif(line[0:5] == "multu" or line[0:4] == "mult"): 
+            if(line[0:5] == "multu"):
+                op = '011001'
+                line = line.replace("multu","")
+            else:
+                op = '011000'
+                line = line.replace("mult","")
             line = line.split(",")
             rs = format(int(line[0]),'05b')
             rt = format(int(line[1]),'05b')
-            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str('0000000000') + str('011001')))
+            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str('0000000000') + str(op)))
 
-        elif(line[0:4] == "mult"): # MULT
-            line = line.replace("mult","")
-            line = line.split(",")
-            rs = format(int(line[0]),'05b')
-            rt = format(int(line[1]),'05b')
-            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str('0000000000') + str('011000')))
-
-        elif(line[0:3] == "srl"): # SRL
+    # srl rd, rt, shamt
+        elif(line[0:3] == "srl"): 
             line = line.replace("srl","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
@@ -157,19 +160,20 @@ def main():
             shamt = format(int(line[2]),'05b')
             f.write(convertToHex(str('00000000000') + str(rt) + str(rd) + str(shamt) + str('000010')))
 
-        elif(line[0:4] == "mfhi"): # mfhi rd
-            line = line.replace("mfhi","")
+    # mfhi rd | mflo rd
+        elif(line[0:4] == "mfhi" or line[0:4] == "mflo"): 
+            if(line[0:4] == "mfhi"):
+                op = '010000'
+                line = line.replace("mfhi","")
+            else:
+                op = '010010'
+                line = line.replace("mflo","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
-            f.write(convertToHex(str('0000000000000000') + str(rd) + str('00000010000')))
+            f.write(convertToHex(str('0000000000000000') + str(rd) + str('00000') + str(op)))
 
-        elif(line[0:4] == "mflo"): # mflo rd
-            line = line.replace("mflo","")
-            line = line.split(",")
-            rd = format(int(line[0]),'05b')
-            f.write(convertToHex(str('0000000000000000') + str(rd) + str('00000010010')))
-
-        elif(line[0:3] == "lui"): # lui rt, imm
+    # lui rt, imm
+        elif(line[0:3] == "lui"): 
             line = line.replace("lui","")
             line = line.split(",")
             rt = format(int(line[0]),'05b')
@@ -182,57 +186,43 @@ def main():
                 imm = format(int(imm),'016b') if (int(imm) >= 0) else format(65536 + int(imm),'016b')
             f.write(convertToHex(str('00111100000') + str(rt) + str(imm)))
 
-        elif(line[0:3] == "lbu"): # LBU
-            line = line.replace("lbu","")
+    # lbu rt, address | lb rt, address | lw rt, address
+        elif(line[0:3] == "lbu" or line[0:2] == "lb" or line[0:2] == "lw"): 
+            if(line[0:3] == "lbu"):
+                op = '10010000000'
+                line = line.replace("lbu","")
+            elif(line[0:2] == "lb"):
+                op = '10000000000'
+                line = line.replace("lb","")
+            else:
+                op = '10001100000'
+                line = line.replace("lw","")
             line = line.split(",")
             rt = format(int(line[0]),'05b')
             addressAndOS = line[1]
             if(addressAndOS.count("0x")): # If offset = hex value \/
-                f.write(convertToHex(str('10010000000') + str(rt) + str(getOffset(addressAndOS))))      
+                f.write(convertToHex(str(op) + str(rt) + str(getOffset(addressAndOS))))      
             else: # If offset = 0 \/
-                f.write(convertToHex(str('10010000000') + str(rt) + str('0000000000000000')))
+                f.write(convertToHex(str(op) + str(rt) + str('0000000000000000')))
 
-        elif(line[0:2] == "lb"): # LB
-            line = line.replace("lb","")
-            line = line.split(",")
-            rt = format(int(line[0]),'05b')
-            addressAndOS = line[1]
-            if(addressAndOS.count("0x")): # If offset = hex value \/
-                f.write(convertToHex(str('10000000000') + str(rt) + str(getOffset(addressAndOS))))   
-            else: # If offset = 0 \/
-                f.write(convertToHex(str('10000000000') + str(rt) + str('0000000000000000')))
-
-        elif(line[0:2] == "sb"): # SB
-            line = line.replace("sb","")
+    # sb rt, address | sw rt, address
+        elif(line[0:2] == "sb" or line[0:2] == "sw"): 
+            if(line[0:2] == "sb"):
+                op = '10100000000'
+                line = line.replace("sb","")
+            else: 
+                op = '10101100000'
+                line = line.replace("sw","")
             line = line.split(",")
             rt = format(int(line[0]),'05b')
             addressAndOS = line[1]
             if(addressAndOS.count("0x")):
-                f.write(convertToHex(str('10100000000') + str(rt) + str(getOffset(addressAndOS))))    
+                f.write(convertToHex(str(op) + str(rt) + str(getOffset(addressAndOS))))    
             else:
-                f.write(convertToHex(str('10100000000') + str(rt) + str('0000000000000000')))
+                f.write(convertToHex(str(op) + str(rt) + str('0000000000000000')))
 
-        elif(line[0:2] == "lw"): # LW
-            line = line.replace("lw","")
-            line = line.split(",")
-            rt = format(int(line[0]),'05b')
-            addressAndOS = line[1]
-            if(addressAndOS.count("0x")):
-                f.write(convertToHex(str('10001100000') + str(rt) + str(getOffset(addressAndOS))))    
-            else:
-                f.write(convertToHex(str('10001100000') + str(rt) + str('0000000000000000')))
-
-        elif(line[0:2] == "sw"): # SW
-            line = line.replace("sw","")
-            line = line.split(",")
-            rt = format(int(line[0]),'05b')
-            addressAndOS = line[1]
-            if(addressAndOS.count("0x")):
-                f.write(convertToHex(str('10101100000') + str(rt) + str(getOffset(addressAndOS))))      
-            else:
-                f.write(convertToHex(str('10101100000') + str(rt) + str('0000000000000000')))
-
-        elif(line[0:3] == "beq" or line[0:3] == "bne"): # beq rs, rt, label | bne rs, rt, label
+    # beq rs, rt, label | bne rs, rt, label
+        elif(line[0:3] == "beq" or line[0:3] == "bne"): 
             if (line[0:3] == "beq"):
                 op = '000100'
                 line = line.replace("beq","")
@@ -260,21 +250,19 @@ def main():
                         imm = jumpAmount - innerLineCnt
                     f.write(convertToHex(str(op) + str(rs) + str(rt) + str(format(int(imm),'016b'))))
 
-        elif(line[0:4] == "sltu"): # SLTU
-            line = line.replace("sltu","")
+    # sltu rd, rs, rt | slt rd, rs, rt
+        elif(line[0:4] == "sltu" or line[0:3] == "slt"): 
+            if(line[0:4] == "sltu"):
+                op = '00000101011'
+                line = line.replace("sltu","")
+            else:
+                op = '00000101010'
+                line = line.replace("slt","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
             rs = format(int(line[1]),'05b')
             rt = format(int(line[2]),'05b')
-            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str('00000101011')))
-
-        elif(line[0:3] == "slt"): # SLT
-            line = line.replace("slt","")
-            line = line.split(",")
-            rd = format(int(line[0]),'05b')
-            rs = format(int(line[1]),'05b')
-            rt = format(int(line[2]),'05b')
-            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str('00000101010')))
+            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str(op)))
 
     f.close()
 
