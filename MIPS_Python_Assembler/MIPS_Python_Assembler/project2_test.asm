@@ -16,20 +16,20 @@
 
 	addi	$10, $0, 0			# Initialize A / counter to 0
 	addi	$23, $0, 0x2020			# Initialize address to 0x2020
-	
+
 continue:
 	addi	$10, $10, 1			# A++
 	multu	$10, $8				# A * B
 	addi	$14, $0, 5			# Initialize 5 count
 	beq	$14, $14, first_pass		# Skip on first pass
-multi_fold:
+mul_fold:
 	multu	$13, $8
 first_pass:
 	mflo	$11					
 	mfhi	$12
 	xor	$13, $11, $12			# Lo ^ Hi --> $13
 	addi	$14, $14, -1			# Count - 1
-	bne	$14, $0, multi_fold
+	bne	$14, $0, mul_fold
 
 	andi	$21, $13, 0xffff		# Last 2 folding operations
 	srl	$22, $13, 16

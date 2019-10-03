@@ -9,7 +9,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
             if(line.count("#") == 0): # Ensures ":" inside comment is not counted as label
                 labelName.append(line[0:line.index(":")]) # append the label name
                 labelIndex.append(lineCount) # append the label's index
-                asm[lineCount] = line[line.index(":")+1:]
+                #asm[lineCount] = line[line.index(":")+1:] # Creates Bug because it removes label names thus altering the labelIndex
         lineCount += 1
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -242,17 +242,16 @@ def main():
             line = line.split(",")
             rs = format(int(line[0]),'05b')
             rt = format(int(line[1]),'05b')
-            for i in range(len(labelName)):# Branching to label
-                
+            for i in range(len(labelName)):# Branching to label            
                 if(labelName[i] == line[2]): 
-                    #print(labelName[i], labelIndex[i])
-                    jumpAmount = labelIndex[i] - lineCount
-                    #print(jumpAmount)
+                    jumpAmount = labelIndex[i] - lineCount + 1
+                    if(labelName[i] == "continue"): # Add 1 to jumpAmount for first label *BUG FIX*
+                        jumpAmount += 1
                     if(jumpAmount < 0):
                         for num in range((labelIndex[i] + 1), lineCount):
                             if num in labelIndex:
                                 innerLineCnt += 1 # Counts the lines above current label until match starting from index
-                        imm = jumpAmount + innerLineCnt
+                        imm = jumpAmount + innerLineCnt 
                         imm = 65536 + int(imm) # make negative
                     else:
                         for num in range(lineCount, (labelIndex[i] + 1)):
@@ -260,7 +259,6 @@ def main():
                                 innerLineCnt += 1 # Counts the lines below current label until match starting from index
                         imm = jumpAmount - innerLineCnt
                     f.write(convertToHex(str(op) + str(rs) + str(rt) + str(format(int(imm),'016b'))))
-                    #print(convertToHex(str(op) + str(rs) + str(rt) + str(format(int(imm),'016b'))))
 
         elif(line[0:4] == "sltu"): # SLTU
             line = line.replace("sltu","")
