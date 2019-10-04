@@ -27,12 +27,12 @@ def getOffset(line): # Remove "0x" from offset, seperate from address, and conve
     return offset
 
 
-def main():
+def decodeASM(readFile):
     lineCount = 0
     labelIndex = []
     labelName = []
     f = open("mc.txt","w+")
-    h = open("project2_test.asm","r")
+    h = open(readFile,"r")
     asm = h.readlines()
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -112,8 +112,8 @@ def main():
         elif(line[0:3] == "ori"): 
             line = line.replace("ori","")
             line = line.split(",")
-            rs = format(int(line[0]),'05b')
-            rt = format(int(line[1]),'05b')
+            rt = format(int(line[0]),'05b')
+            rs = format(int(line[1]),'05b')
             imm = line[2]
             if(imm.count("0x")): # If offset = hex value \/
                 for item in range(imm.count("0x")):
@@ -235,7 +235,7 @@ def main():
             for i in range(len(labelName)):# Branching to label            
                 if(labelName[i] == line[2]): 
                     jumpAmount = labelIndex[i] - lineCount + 1
-                    if(labelName[i] == "continue"): # Add 1 to jumpAmount for first label *BUG FIX*
+                    if(labelName[i] == labelName[0]): # Add 1 to jumpAmount for first label *BUG FIX*
                         jumpAmount += 1
                     if(jumpAmount < 0):
                         for num in range((labelIndex[i] + 1), lineCount):
@@ -266,5 +266,5 @@ def main():
 
     f.close()
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__decodeASM__":
+    decodeASM()
