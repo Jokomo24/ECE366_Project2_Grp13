@@ -239,22 +239,22 @@ def lui(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def lbu(instruction, registers, debug, memory):
+def lbu(instruction, registers, debug, memory): # FIX ME!! needs to be unsigned operation
     address = registers[instruction.rs]
     offset = registers[instruction.imm]
-    byteLoc = hex(0x00000011) << offset
-    byte = memory[address] & byteLoc
-    registers[instruction.rt] = uint8(byte)
+    byteLoc = int(hex(0x00000011), 16) << offset
+    byte = int(hex(memory[address]), 16) & byteLoc
+    registers[instruction.rt] = byte
     if debug:
         instruction.print()
         print_all(registers, memory)
     registers['PC'] += 4
     return registers
 
-def lb(instruction, registers, debug, memory):
+def lb(instruction, registers, debug, memory): # Correct??
     address = registers[instruction.rs]
     offset = registers[instruction.imm]
-    byteLoc = hex(0x00000011) << offset
+    byteLoc = int(hex(0x00000011), 16) << offset
     byte = memory[address] & byteLoc
     registers[instruction.rt] = byte
     if debug:
