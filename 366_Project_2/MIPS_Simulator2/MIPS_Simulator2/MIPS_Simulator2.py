@@ -3,7 +3,10 @@ from ASMOperations import *
 
     # define registers and memory as dictionaries
 registers = {0: 0,
-            'PC': 0}
+           'PC':0,
+           'hi':0,
+           'lo':0}
+            
 memory = {}
 for i in range(8,24):
     registers[i] = 0
@@ -51,13 +54,12 @@ for instr in hexFile:
 pc = 0
 while pc < line_count*4:
     if pc % 4 == 0:
+        print(pc)
         if (instr_list[pc].type == 'r_type'):
             function = r_types[instr_list[pc].func]
-        elif (instr_list[pc].type == 'j_type'):
-            function = j_types[instr_list[pc].func]
         else:
-            function = i_types[instr_list[pc].opcode]
-        #function(instr_list[pc], registers, debug, memory)
+            function = i_types[instr_list[pc].opcode]   
+        function(instr_list[pc], registers, debug, memory)
     pc = registers['PC']
 # show the contents of the registers and memory after program completion
 print_all(registers, memory)
