@@ -54,7 +54,6 @@ for instr in hexFile:
 pc = 0
 while pc < line_count*4:
     if pc % 4 == 0:
-        print(pc)
         if (instr_list[pc].type == 'r_type'):
             function = r_types[instr_list[pc].func]
         else:

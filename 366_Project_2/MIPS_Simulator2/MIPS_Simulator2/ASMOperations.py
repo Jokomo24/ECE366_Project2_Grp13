@@ -232,7 +232,7 @@ def srl(instruction, registers, debug, memory):
     return registers
 
 def lui(instruction, registers, debug, memory):
-    registers[instruction.rt] = instruction.imm & hex(0x0000)
+    registers[instruction.rt] = int(hex(instruction.imm), 16) & int(hex(0x0000), 16)
     if debug:
         instruction.print()
         print_all(registers, memory)
