@@ -1,11 +1,8 @@
 from decodeASM import *
-from ASMOperations import *
 
-# define registers and memory as dictionaries
-registers = {0:0,
-          'PC':0,
-          'hi':0,
-          'lo':0}
+    # define registers and memory as dictionaries
+registers = {0: 0,
+            'PC': 0}
 memory = {}
 for i in range(8,24):
     registers[i] = 0
@@ -14,6 +11,7 @@ for i in range(8,24):
 instr_list = []
 line_count = 0
 debug = False
+
 userASMFile = input("This program is a MIPS assembly simulator. Please Enter the name of the MIPS txt file you wish to simulate.\n\n\n")
 print("loading Assembly Code from " + userASMFile)
 
@@ -21,13 +19,14 @@ while(decodeASM(userASMFile) == 0):
     print("\nFile Not Found\n")
     userASMFile = input("\nPlease Enter the name of the MIPS txt file you wish to simulate.\n\n\n")
     print("loading Assembly Code from " + userASMFile + '\n')
-    decodeASM(userASMFile)
 
 if (input('enable debug? y/n \n').lower() == 'y'):
     print('debug enabled\n')
     debug = True
 
+print('hi')
 h = open("mc.txt","r")
+print(h)
 hexFile = h.readlines()  #open the instruction file
 
 #for line in hexFile:

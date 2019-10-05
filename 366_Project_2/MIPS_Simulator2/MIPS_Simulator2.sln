@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MIPS_Simulator", "MIPS_Simulator\MIPS_Simulator.pyproj", "{96D7F375-1C74-4477-B04B-D6747B9C18CA}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "MIPS_Simulator2", "MIPS_Simulator2\MIPS_Simulator2.pyproj", "{C43C90AC-A598-48D1-BAD3-76497C81D150}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +11,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{96D7F375-1C74-4477-B04B-D6747B9C18CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{96D7F375-1C74-4477-B04B-D6747B9C18CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C43C90AC-A598-48D1-BAD3-76497C81D150}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C43C90AC-A598-48D1-BAD3-76497C81D150}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {91603F94-AB03-48D4-93C0-8AC164D08D42}
+		SolutionGuid = {232C7DA9-CCAA-4CCF-A3EA-BAC78090ED0D}
 	EndGlobalSection
 EndGlobal

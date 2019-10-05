@@ -16,7 +16,7 @@
 
 	addi	$10, $0, 0			# Initialize A / counter to 0
 	addi	$23, $0, 0x2020			# Initialize address to 0x2020
-
+	
 continue:
 	addi	$10, $10, 1			# A++
 	multu	$10, $8				# A * B
@@ -40,7 +40,7 @@ first_pass:
 	
 	sb	$13, 0($23)			# val[$13] --> current address
 	addi	$23, $23, 1			# Address + 1 (8-bits)
-	addi	$22, $0, 100			# Check if counter <= 100
+	addi	$22, $0, 0x64			# Check if counter <= 100
 	bne	$22, $10, continue		# Loop if count <= 100
 
 	xor	$21, $0, $23			# Store address for comparison in part B.ii
@@ -124,3 +124,7 @@ LTmax:
 	beq	$22, $21, end			# Continue until all bytes compared
 	beq	$23, $21, nxt_comp_byte		
 end:
+
+	
+	
+	

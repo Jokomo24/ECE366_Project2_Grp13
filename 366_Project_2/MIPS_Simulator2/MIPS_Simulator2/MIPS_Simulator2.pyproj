@@ -2,15 +2,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>96d7f375-1c74-4477-b04b-d6747b9c18ca</ProjectGuid>
+    <ProjectGuid>c43c90ac-a598-48d1-bad3-76497c81d150</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>MIPS_Simulator.py</StartupFile>
+    <StartupFile>MIPS_Simulator2.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>MIPS_Simulator</Name>
-    <RootNamespace>MIPS_Simulator</RootNamespace>
+    <Name>MIPS_Simulator2</Name>
+    <RootNamespace>MIPS_Simulator2</RootNamespace>
+    <InterpreterId>Global|ContinuumAnalytics|Anaconda37-64</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,17 +22,18 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\..\Documents\GitHub\ECE_366\366_Project_2\ASMOperations.py">
+    <Compile Include="ASMOperations.py">
       <SubType>Code</SubType>
-      <Link>ASMOperations.py</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Documents\GitHub\ECE_366\366_Project_2\decodeASM.py">
+    <Compile Include="decodeASM.py">
       <SubType>Code</SubType>
-      <Link>decodeASM.py</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Documents\GitHub\ECE_366\366_Project_2\MIPS_Simulator.py">
-      <Link>MIPS_Simulator.py</Link>
-    </Compile>
+    <Compile Include="MIPS_Simulator2.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda37-64" />
+    <InterpreterReference Include="Global|PythonCore|2.7-32" />
+    <InterpreterReference Include="Global|PythonCore|3.7" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

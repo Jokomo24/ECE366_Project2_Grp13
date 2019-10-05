@@ -16,7 +16,7 @@ def saveJumpLabel(asm,labelIndex, labelName):
 
 def convertToHex(binary): # Function to convert binary to hex for easier debugging
     machineCode = format(int(binary, 2), "08x")
-    machineCode = machineCode + '\n'
+    machineCode = "0x" + machineCode + '\n'
     return machineCode
 
 def getOffset(line): # Remove "0x" from offset, seperate from address, and convert to binary
@@ -32,14 +32,7 @@ def decodeASM(readFile):
     labelIndex = []
     labelName = []
     f = open("mc.txt","w+")
-
-    try: # Try to open file, return 0 if file does not exist
-        h = open(readFile,"r")
-    except FileNotFoundError:
-        return 0
-    else:
-        h = open(readFile,"r")
-
+    h = open(readFile,"r")
     asm = h.readlines()
     for item in range(asm.count('\n')): # Remove all empty lines '\n'
         asm.remove('\n')
@@ -48,7 +41,7 @@ def decodeASM(readFile):
     
     for line in asm:   
         if(line.count("#")): # Removes all comments
-            line = line.replace(line[(line.index("#")):], '')
+            line = line.replace(line[(line.index("#")):(line.index("\n"))], '')
         line = line.replace("\n","") # Removes extra chars
         line = line.replace("\t","") # Removes tabs
         line = line.replace("$","")
@@ -148,15 +141,15 @@ def decodeASM(readFile):
     # multu rs, rt | mult rs, rt
         elif(line[0:5] == "multu" or line[0:4] == "mult"): 
             if(line[0:5] == "multu"):
-                r_op = '011001'
+                op = '011001'
                 line = line.replace("multu","")
             else:
-                r_op = '011000'
+                op = '011000'
                 line = line.replace("mult","")
             line = line.split(",")
             rs = format(int(line[0]),'05b')
             rt = format(int(line[1]),'05b')
-            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str('0000000000') + str(r_op)))
+            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str('0000000000') + str(op)))
 
     # srl rd, rt, shamt
         elif(line[0:3] == "srl"): 
@@ -170,14 +163,14 @@ def decodeASM(readFile):
     # mfhi rd | mflo rd
         elif(line[0:4] == "mfhi" or line[0:4] == "mflo"): 
             if(line[0:4] == "mfhi"):
-                r_op = '010000'
+                op = '010000'
                 line = line.replace("mfhi","")
             else:
-                r_op = '010010'
+                op = '010010'
                 line = line.replace("mflo","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
-            f.write(convertToHex(str('0000000000000000') + str(rd) + str('00000') + str(r_op)))
+            f.write(convertToHex(str('0000000000000000') + str(rd) + str('00000') + str(op)))
 
     # lui rt, imm
         elif(line[0:3] == "lui"): 
@@ -260,16 +253,16 @@ def decodeASM(readFile):
     # sltu rd, rs, rt | slt rd, rs, rt
         elif(line[0:4] == "sltu" or line[0:3] == "slt"): 
             if(line[0:4] == "sltu"):
-                r_op = '00000101011'
+                op = '00000101011'
                 line = line.replace("sltu","")
             else:
-                r_op = '00000101010'
+                op = '00000101010'
                 line = line.replace("slt","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
             rs = format(int(line[1]),'05b')
             rt = format(int(line[2]),'05b')
-            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str(r_op)))
+            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str(op)))
 
     f.close()
 
