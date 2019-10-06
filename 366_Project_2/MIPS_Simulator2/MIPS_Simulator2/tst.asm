@@ -19,7 +19,7 @@
 	
 continue:
 	addi	$10, $10, 1			# A++
-	multu	$10, $8				# A * B
+	multu	$10, $8				# A * B   FIX MEEEEE!!!!!! should be multu!
 	addi	$14, $0, 5			# Initialize 5 count
 	beq	$14, $14, first_pass		# Skip on first pass
 mul_fold:
@@ -27,7 +27,7 @@ mul_fold:
 first_pass:
 	mflo	$11					
 	mfhi	$12
-	xor	$13, $11, $12			# Lo ^ Hi --> $13
+	#xor	$13, $11, $12			# Lo ^ Hi --> $13
 	addi	$14, $14, -1			# Count - 1
 	bne	$14, $0, mul_fold
 

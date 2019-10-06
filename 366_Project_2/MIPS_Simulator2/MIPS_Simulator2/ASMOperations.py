@@ -1,5 +1,3 @@
-#import numpy as np
-
 # parses hex input into component instruction parts
 class Instruction():
     func_dict = {'100010':'sub',
@@ -82,6 +80,8 @@ def andi(instruction, registers, debug, memory):
 def addi(instruction, registers, debug, memory):
     operand1 = registers[instruction.rs]
     operand2 = instruction.imm
+    operand1 = int(operand1)
+    operand2 = int(operand2)
     registers[instruction.rt] = operand1 + operand2
     if debug:
         instruction.print()
@@ -138,7 +138,7 @@ def bne(instruction, registers, debug, memory):
         instruction.print()
         print_all(registers, memory)
     if (operand1 != operand2):
-        registers['PC'] += (4 + (instruction.imm << 2))
+        registers['PC'] += (8 + (instruction.imm << 2))
     else:
         registers['PC'] += 4
     return registers
@@ -153,10 +153,13 @@ def ori(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def xor(instruction, registers, debug, memory):
+def xor(instruction, registers, debug, memory): # FIX ME!!
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
+    operand1 = int(hex(operand1))
+    operand2 = int(hex(operand2))
     registers[instruction.rd] = operand1 ^ operand2
+    print(operand1,operand2, registers[instruction.rd])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -167,13 +170,11 @@ def multu(instruction, registers, debug, memory):
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
     product = operand1 * operand2
-    if (product <= 0):
-        product = 65536 + product
+    if(product <= 0): # unsigned
+       product = 65536 + product # removes negative sign
     product = str(format(int(product),'064b'))
-    print(product)
-    #product = 
-    registers[instruction.lo] = operand1[0:15] * operand2[0:15]
-    registers[instruction.hi] = operand1[16:32] * operand2[16:32]
+    registers['hi'] = product[0:32]
+    registers['lo'] = product[32:64]
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -183,8 +184,22 @@ def multu(instruction, registers, debug, memory):
 def mult(instruction, registers, debug, memory):
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    registers[instruction.lo] = operand1[0:15] * operand2[0:15]
-    registers[instruction.hi] = operand1[16:32] * operand2[16:32]
+    product = operand1 * operand2
+    if(product <= 0): # signed extension
+       product = 65536 + product # removes negative sign
+       product = str(format(int(product),'064b'))
+       i = 0
+       zeros = 0
+       ones = str()
+       while product[i] != '1':
+           zeros += 1
+           ones = ones + '1'
+           i += 1
+       product = ones + product[zeros:] 
+    else:
+        product = str(format(int(product),'064b'))
+    registers['hi'] = product[0:32]
+    registers['lo'] = product[32:64]
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -192,7 +207,7 @@ def mult(instruction, registers, debug, memory):
     return registers
 
 def mfhi(instruction, registers, debug, memory):
-    registers[instruction.rd] = registers[instruction.hi]
+    registers[instruction.rd] = registers['hi']
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -200,7 +215,7 @@ def mfhi(instruction, registers, debug, memory):
     return registers
 
 def mflo(instruction, registers, debug, memory):
-    registers[instruction.rd] = registers[instruction.lo]
+    registers[instruction.rd] = registers['lo']
     if debug:
         instruction.print()
         print_all(registers, memory)
