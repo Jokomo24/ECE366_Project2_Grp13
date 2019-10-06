@@ -1,12 +1,12 @@
-from decodeASM import *
-from ASMOperations import *
+# Created by Samantha Stephans for ECE 366 fall '19
 
-    # define registers and memory as dictionaries
+# bring in your header file, the * means you can use
+# anyting in the header as if it was declared in this file
+from header import *
+
+# define registers and memory as dictionaries
 registers = {0: 0,
-           'PC':0,
-           'hi':0,
-           'lo':0}
-            
+            'PC': 0}
 memory = {}
 for i in range(8,24):
     registers[i] = 0
@@ -15,28 +15,16 @@ for i in range(8,24):
 instr_list = []
 line_count = 0
 debug = False
-
-userASMFile = input("This program is a MIPS assembly simulator. Please Enter the name of the MIPS txt file you wish to simulate.\n\n\n")
-print("loading Assembly Code from " + userASMFile)
-
-while(decodeASM(userASMFile) == 0):
-    print("\nFile Not Found\n")
-    userASMFile = input("\nPlease Enter the name of the MIPS txt file you wish to simulate.\n\n\n")
-    print("loading Assembly Code from " + userASMFile + '\n')
-
-if (input('enable debug? y/n \n').lower() == 'y'):
-    print('debug enabled\n')
+filename = 'hex_sample.txt'
+print("loading instructions from " + filename)
+if (input('enable debug? y/n ').lower() == 'y'):
+    print('debug enabled')
     debug = True
-
-h = open("mc.txt","r")
-hexFile = h.readlines()  #open the instruction file
-
-#for line in hexFile:
- #   print(line)
+file = open(filename, 'r')  #open the instruction file
 
 # you will need to read in the whole file first before executing anything
 i = 0
-for instr in hexFile:
+for instr in file:
     if (instr == '\n' or instr[0] == '#'):
         continue
     line_count += 1
@@ -49,7 +37,7 @@ for instr in hexFile:
     instr_list.append('')
     instr_list.append('')
     i += 4
-    
+
 # the simulation of the program:
 pc = 0
 while pc < line_count*4:

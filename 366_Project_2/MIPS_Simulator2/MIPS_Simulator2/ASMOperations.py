@@ -164,10 +164,16 @@ def xor(instruction, registers, debug, memory):
     return registers
 
 def multu(instruction, registers, debug, memory):
-    operand1 = uint32(registers[instruction.rs])
-    operand2 = uint32(registers[instruction.rt])
-    registers[instruction.lo] = uint32(operand1[0:15] * operand2[0:15])
-    registers[instruction.hi] = uint32(operand1[16:32] * operand2[16:32])
+    operand1 = registers[instruction.rs]
+    operand2 = registers[instruction.rt]
+    product = operand1 * operand2
+    if (product <= 0):
+        product = 65536 + product
+    product = str(format(int(product),'064b'))
+    print(product)
+    #product = 
+    registers[instruction.lo] = operand1[0:15] * operand2[0:15]
+    registers[instruction.hi] = operand1[16:32] * operand2[16:32]
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -242,7 +248,7 @@ def lui(instruction, registers, debug, memory):
 def lbu(instruction, registers, debug, memory): # FIX ME!! needs to be unsigned operation
     address = registers[instruction.rs]
     offset = registers[instruction.imm]
-    byteLoc = int(hex(0x00000011), 16) << offset
+    byteLoc = int(hex(0x00000011), 16) << offset   # Correct???
     byte = int(hex(memory[address]), 16) & byteLoc
     registers[instruction.rt] = byte
     if debug:
@@ -293,27 +299,27 @@ def sb(instruction, registers, debug, memory):
     return memory
 
 # dictionaries of functions
-r_types = {'100010': 'sub',
-           '100000':'add',
-           '100110':'xor',
-           '011001':'multu',
-           '011000':'mult',
-           '000010':'srl',
-           '010000':'mfhi',
-           '010010':'mflo',
-           '101011':'sltu',
-           '101010':'slt'}
-i_types = {'001000':'addi',
-           '000100':'beq',
-           '000101':'bne',
-           '001101':'ori',
-           '101011':'sw',
-           '001001':'addiu',
-           '001100':'andi',
-           '001111':'lui',
-           '100100':'lbu',
-           '100000':'lb',
-           '100011':'lw',
-           '101000':'sb',
-           '101011':'sw'}
+r_types = {'100010':sub,
+           '100000':add,
+           '100110':xor,
+           '011001':multu,
+           '011000':mult,
+           '000010':srl,
+           '010000':mfhi,
+           '010010':mflo,
+           '101011':sltu,
+           '101010':slt}
+i_types = {'001000':addi,
+           '000100':beq,
+           '000101':bne,
+           '001101':ori,
+           '101011':sw,
+           '001001':addiu,
+           '001100':andi,
+           '001111':lui,
+           '100100':lbu,
+           '100000':lb,
+           '100011':lw,
+           '101000':sb,
+           '101011':sw}
 
