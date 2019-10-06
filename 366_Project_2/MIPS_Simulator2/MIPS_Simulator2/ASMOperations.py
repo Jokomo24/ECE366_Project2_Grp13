@@ -1,5 +1,5 @@
 # parses hex input into component instruction parts
-class Instruction():
+class instruction():
     func_dict = {'100010':'sub',
                  '100000':'add',
                  '100110':'xor',
@@ -42,7 +42,7 @@ class Instruction():
         self.rs = int(self.binary_string[6:11], 2)
         self.rt = int(self.binary_string[11:16], 2)
         self.rd = int(self.binary_string[16:21], 2)
-        self.shamt = int(self.binary_string[6:11], 2) # shift amount
+        self.shamt = int(self.binary_string[21:26], 2) # shift amount
         if self.binary_string[16] == '1': # check the immediate for negative numbers and convert if needed
             self.imm = -((int(self.binary_string[16:32], 2) ^ 0xFFFF) + 1)
         else:
@@ -56,11 +56,13 @@ class Instruction():
             print(self.hex_num + ' is ' + self.name + ' $' + str(self.rd) + ', $' + str(self.rs) + ', $' + str(self.rt))
         else:
             print(self.hex_num + ' is ' + self.name + ' $' + str(self.rt) + ', $' + str(self.rs) + ', ' + str(self.imm))
+    def shiftopprint(self):
+        print(self.hex_num + ' is ' + self.name + ' $' + str(self.rt) + ', $' + str(self.rs) + ', ' + str(self.shamt))
 
 def print_all(registers, memory):
     print('Register Contents:')
     for value in registers.items():
-        if value[1] != 0:
+        if value[1] != None:
             print(value)
     print('Memory Contents:')
     for value in memory.items():
@@ -156,8 +158,8 @@ def ori(instruction, registers, debug, memory):
 def xor(instruction, registers, debug, memory): # FIX ME!!
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    operand1 = int(hex(operand1))
-    operand2 = int(hex(operand2))
+#    operand1 = int(hex(operand1)
+#    operand2 = int(hex(operand2)
     registers[instruction.rd] = operand1 ^ operand2
     print(operand1,operand2, registers[instruction.rd])
     if debug:
@@ -244,10 +246,14 @@ def slt(instruction, registers, debug, memory):
 
 def srl(instruction, registers, debug, memory):
     operand1 = registers[instruction.rt]
-    operand2 = registers[instruction.shamt]
-    registers[instruction.rd] = operand1 >> operand2
+    operand2 = instruction.shamt                # shamt is not a register
+    # Python does not have logical right shift.
+    # Instead, modulo with 0x100000000 (also known as 1 << 32)
+    # to convert raw binary for shifting
+    # This catches both negative and positive numbers
+    registers[instruction.rd] = (operand1 % 0x100000000) >> operand2
     if debug:
-        instruction.print()
+        instruction.shiftopprint()
         print_all(registers, memory)
     registers['PC'] += 4
     return registers

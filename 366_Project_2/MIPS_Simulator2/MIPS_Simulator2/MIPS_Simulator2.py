@@ -43,7 +43,7 @@ for instr in hexFile:
     instr = instr[0:10]
     if debug:
         print(instr)
-    temp = Instruction(instr)
+    temp = instruction(instr)
     instr_list.append(temp)
     instr_list.append('')
     instr_list.append('')
