@@ -59,6 +59,22 @@ class instruction():
     def shiftopprint(self):
         print(self.hex_num + ' is ' + self.name + ' $' + str(self.rt) + ', $' + str(self.rs) + ', ' + str(self.shamt))
 
+def sextb(num, bits):
+    if (num < 0): # signed extension
+       imm = 65536 + num # removes negative sign
+       imm = str(format(int(imm),'0' + bits + 'b'))
+       i = 0
+       zeros = 0
+       ones = str()
+       while imm[i] != '1':
+           zeros += 1
+           ones = ones + '1'
+           i += 1
+       imm = ones + imm[zeros:] 
+    else:
+        imm = str(format(int(num),'0' + bits + 'b'))
+    return imm
+
 def print_all(registers, memory):
     print('Register Contents:')
     for value in registers.items():
@@ -79,7 +95,7 @@ def andi(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def addi(instruction, registers, debug, memory):
+def addi(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = instruction.imm
     operand1 = int(operand1)
@@ -91,7 +107,7 @@ def addi(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def addiu(instruction, registers, debug, memory):
+def addiu(instruction, registers, debug, memory): # Done/Working????
     operand1 = registers[instruction.rs]
     operand2 = instruction.imm
     registers[instruction.rt] = operand1 + operand2
@@ -101,7 +117,7 @@ def addiu(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def add(instruction, registers, debug, memory):
+def add(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
     registers[instruction.rd] = operand1 + operand2
@@ -111,7 +127,7 @@ def add(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def sub(instruction, registers, debug, memory):
+def sub(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs] #value in rs
     operand2 =  registers[instruction.rt] #value in rt
     registers[instruction.rd] = operand1 - operand2
@@ -121,7 +137,7 @@ def sub(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def beq(instruction, registers, debug, memory):
+def beq(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
     if debug:
@@ -133,7 +149,7 @@ def beq(instruction, registers, debug, memory):
         registers['PC'] += 4
     return registers
 
-def bne(instruction, registers, debug, memory):
+def bne(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
     if debug:
@@ -145,10 +161,20 @@ def bne(instruction, registers, debug, memory):
         registers['PC'] += 4
     return registers
 
-def ori(instruction, registers, debug, memory):
+def ori(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
-    operand2 = instruction.imm
-    registers[instruction.rt] = operand1 | operand2
+    imm = instruction.imm
+    imm = sextb(int(imm), '16')
+    operand2 = '0000000000000000' + imm 
+    oriVal = str()
+    i = 0
+    while i < 32:
+        if (operand1[i] == '1' or operand2[i] == '1'):
+            oriVal = oriVal + '1'
+        else:
+            oriVal = oriVal + '0'
+        i += 1
+    registers[instruction.rt] = oriVal
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -158,21 +184,28 @@ def ori(instruction, registers, debug, memory):
 def xor(instruction, registers, debug, memory): # FIX ME!!
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-#    operand1 = int(hex(operand1)
-#    operand2 = int(hex(operand2)
-    registers[instruction.rd] = operand1 ^ operand2
-    print(operand1,operand2, registers[instruction.rd])
+    xorVal = str()
+    i = 0
+   # print(operand1,operand2, xorVal)
+    while i < 32:
+        if (operand1[i] != operand2[i]):
+            xorVal = xorVal + '1'
+        else:
+            xorVal = xorVal + '0'
+        i += 1
+    registers[instruction.rd] = xorVal
     if debug:
         instruction.print()
         print_all(registers, memory)
     registers['PC'] += 4
     return registers
 
-def multu(instruction, registers, debug, memory):
+def multu(instruction, registers, debug, memory): 
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    product = operand1 * operand2
-    if(product <= 0): # unsigned
+    product = int(operand1) * int(operand2) 
+    print (operand1, operand2,product)
+    if(product < 0): # unsigned
        product = 65536 + product # removes negative sign
     product = str(format(int(product),'064b'))
     registers['hi'] = product[0:32]
@@ -183,23 +216,11 @@ def multu(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def mult(instruction, registers, debug, memory):
+def mult(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    product = operand1 * operand2
-    if(product <= 0): # signed extension
-       product = 65536 + product # removes negative sign
-       product = str(format(int(product),'064b'))
-       i = 0
-       zeros = 0
-       ones = str()
-       while product[i] != '1':
-           zeros += 1
-           ones = ones + '1'
-           i += 1
-       product = ones + product[zeros:] 
-    else:
-        product = str(format(int(product),'064b'))
+    product = int(operand1) * int(operand2)
+    product = sextb(product, '64')
     registers['hi'] = product[0:32]
     registers['lo'] = product[32:64]
     if debug:
@@ -208,7 +229,7 @@ def mult(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def mfhi(instruction, registers, debug, memory):
+def mfhi(instruction, registers, debug, memory): # Done/Working
     registers[instruction.rd] = registers['hi']
     if debug:
         instruction.print()
@@ -216,7 +237,7 @@ def mfhi(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def mflo(instruction, registers, debug, memory):
+def mflo(instruction, registers, debug, memory): # Done/Working
     registers[instruction.rd] = registers['lo']
     if debug:
         instruction.print()
@@ -244,13 +265,9 @@ def slt(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def srl(instruction, registers, debug, memory):
+def srl(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rt]
-    operand2 = instruction.shamt                # shamt is not a register
-    # Python does not have logical right shift.
-    # Instead, modulo with 0x100000000 (also known as 1 << 32)
-    # to convert raw binary for shifting
-    # This catches both negative and positive numbers
+    operand2 = instruction.shamt          # good catch!
     registers[instruction.rd] = (operand1 % 0x100000000) >> operand2
     if debug:
         instruction.shiftopprint()
@@ -258,8 +275,10 @@ def srl(instruction, registers, debug, memory):
     registers['PC'] += 4
     return registers
 
-def lui(instruction, registers, debug, memory):
-    registers[instruction.rt] = int(hex(instruction.imm), 16) & int(hex(0x0000), 16)
+def lui(instruction, registers, debug, memory): # Done/Working
+    imm = instruction.imm
+    imm = sextb(imm, '16')
+    registers[instruction.rt] = str(imm) + '0000000000000000'
     if debug:
         instruction.print()
         print_all(registers, memory)
