@@ -184,9 +184,9 @@ def ori(instruction, registers, debug, memory): # Done/Working
 def xor(instruction, registers, debug, memory): # FIX ME!!
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
+    #print(operand1+'hi'+operand2)
     xorVal = str()
     i = 0
-   # print(operand1,operand2, xorVal)
     while i < 32:
         if (operand1[i] != operand2[i]):
             xorVal = xorVal + '1'
@@ -194,22 +194,25 @@ def xor(instruction, registers, debug, memory): # FIX ME!!
             xorVal = xorVal + '0'
         i += 1
     registers[instruction.rd] = xorVal
+
+    #print(operand1,operand2,xorVal)
+
     if debug:
         instruction.print()
         print_all(registers, memory)
     registers['PC'] += 4
     return registers
 
-def multu(instruction, registers, debug, memory): 
+def multu(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    product = int(operand1) * int(operand2) 
-    print (operand1, operand2,product)
-    if(product < 0): # unsigned
-       product = 65536 + product # removes negative sign
-    product = str(format(int(product),'064b'))
+    product = str(int(operand1) * int(operand2))
+    #print(product)
+    bits64 = 64 - len(product)
+    product =   (bits64 * '0') + product # "bits64" adds the extra bits 
     registers['hi'] = product[0:32]
     registers['lo'] = product[32:64]
+    #print(product)
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -219,8 +222,12 @@ def multu(instruction, registers, debug, memory):
 def mult(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    product = int(operand1) * int(operand2)
-    product = sextb(product, '64')
+    product = str(int(operand1) * int(operand2))
+    bits64 = 64 - len(product)
+    if(product[0] == '1'): # unsigned
+        product =   (bits64 * '1') + product # "bits64" adds the extra bits 
+    else:
+        product = (bits64 * '0') + product
     registers['hi'] = product[0:32]
     registers['lo'] = product[32:64]
     if debug:
@@ -231,6 +238,7 @@ def mult(instruction, registers, debug, memory): # Done/Working
 
 def mfhi(instruction, registers, debug, memory): # Done/Working
     registers[instruction.rd] = registers['hi']
+    #print('hi'+registers['hi'])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -239,6 +247,7 @@ def mfhi(instruction, registers, debug, memory): # Done/Working
 
 def mflo(instruction, registers, debug, memory): # Done/Working
     registers[instruction.rd] = registers['lo']
+    #print('lo'+registers['lo'])
     if debug:
         instruction.print()
         print_all(registers, memory)
