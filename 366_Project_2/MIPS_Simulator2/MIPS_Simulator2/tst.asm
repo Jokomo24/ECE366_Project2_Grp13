@@ -57,7 +57,7 @@ first_pass:
 	
 nxt_byte1:
 	lbu	$11, 0($23)			# Load current byte from memory
-	sltu	$12, $11, $10			# currentVal < maxVal = ?
+	slt	$12, $11, $10			# currentVal < maxVal = ?
 	bne	$12, $0, skip			# False = skip
 	lbu	$10, 0($23)			# True = store maxVal
 	sw	$23, 0x2000($0)			# Store address of current maxVal into M[0x2000]
@@ -114,7 +114,7 @@ no_match2:
 	addi	$23, $23, 1			# Address++
 	bne	$23, $21, nxt_byte3
 	addi	$22, $22, 1			# Address++ of compare byte
-	sltu	$12, $14, $15			# compare with current max collision count
+	slt	$12, $14, $15			# compare with current max collision count
 	bne	$12, $0, LTmax
 	beq	$14, $15, LTmax			# Go with first occuring pattern
 	sw	$14, 0x2014($0)			# Store new collision count into M[0x2014]

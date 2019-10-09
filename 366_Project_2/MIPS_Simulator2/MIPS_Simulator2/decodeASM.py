@@ -58,17 +58,8 @@ def decodeASM(readFile):
         innerLineCnt = 0
         jumpAmount = 0
 
-    # addiu rt, rs, imm
-        if(line[0:5] == "addiu"): 
-            line = line.replace("addiu","")
-            line = line.split(",")
-            rt = format(int(line[0]),'05b')
-            rs = format(int(line[1]),'05b')
-            imm = format(int(line[2]),'016b')
-            f.write(convertToHex(str('001001') + str(rs) + str(rt) + str(imm)))
-
     # addi rt, rs, imm 
-        elif(line[0:4] == "addi"): 
+        if(line[0:4] == "addi"): 
             line = line.replace("addi","")
             line = line.split(",")
             imm = line[2]
@@ -145,14 +136,10 @@ def decodeASM(readFile):
                     if(labelName[i] == line[0]):
                        f.write(convertToHex(str('000010') + str(format(int(labelIndex[i]),'026b'))))
 
-    # multu rs, rt | mult rs, rt
-        elif(line[0:5] == "multu" or line[0:4] == "mult"): 
-            if(line[0:5] == "multu"):
-                r_op = '011001'
-                line = line.replace("multu","")
-            else:
-                r_op = '011000'
-                line = line.replace("mult","")
+    # multu rs, rt
+        elif(line[0:5] == "multu"): 
+            r_op = '011001'
+            line = line.replace("multu","")
             line = line.split(",")
             rs = format(int(line[0]),'05b')
             rt = format(int(line[1]),'05b')
@@ -224,7 +211,6 @@ def decodeASM(readFile):
             line = line.split(",")
             addressAndOS = line[1]
             rt = format(int(line[0]),'05b')
-            print (rt)
             rs = format(int(addressAndOS[addressAndOS.index("(") + 1:addressAndOS.index(")")]), '05b')
             if(addressAndOS.count("0x")):
                 f.write(convertToHex(str(op) + str(rs) + str(rt) + str(getOffset(addressAndOS))))    
@@ -260,14 +246,10 @@ def decodeASM(readFile):
                         imm = jumpAmount - innerLineCnt
                     f.write(convertToHex(str(op) + str(rs) + str(rt) + str(format(int(imm),'016b'))))
 
-    # sltu rd, rs, rt | slt rd, rs, rt
-        elif(line[0:4] == "sltu" or line[0:3] == "slt"): 
-            if(line[0:4] == "sltu"):
-                r_op = '101011'
-                line = line.replace("sltu","")
-            else:
-                r_op = '101010'
-                line = line.replace("slt","")
+    # slt rd, rs, rt
+        elif(line[0:3] == "slt"): 
+            r_op = '101010'
+            line = line.replace("slt","")
             line = line.split(",")
             rd = format(int(line[0]),'05b')
             rs = format(int(line[1]),'05b')

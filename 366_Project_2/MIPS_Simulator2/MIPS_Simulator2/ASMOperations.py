@@ -1,21 +1,17 @@
 # parses hex input into component instruction parts
 class instruction():
-    func_dict = {'100010':'sub',
-                 '100000':'add',
+    func_dict = {'100000':'add',
                  '100110':'xor',
                  '011001':'multu',
-                 '011000':'mult',
                  '000010':'srl',
                  '010000':'mfhi',
                  '010010':'mflo',
-                 '101011':'sltu',
                  '101010':'slt',
                  '001000':'addi',
                  '000100':'beq',
                  '000101':'bne',
                  '001101':'ori',
                  '101011':'sw',
-                 '001001':'addiu',
                  '001100':'andi',
                  '001111':'lui',
                  '100100':'lbu',
@@ -111,18 +107,8 @@ def andi(instruction, registers, debug, memory): # Done/Working
 def addi(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = instruction.imm
-    registers[instruction.rt] = operand1 + operand2
+    registers[instruction.rt] = str(int(operand1) + int(operand2))
     #print(operand1,operand2, registers[instruction.rt])
-    if debug:
-        instruction.print()
-        print_all(registers, memory)
-    registers['PC'] += 4
-    return registers
-
-def addiu(instruction, registers, debug, memory): # Done/Working
-    operand1 = registers[instruction.rs]
-    operand2 = instruction.imm
-    registers[instruction.rt] = operand1 + operand2
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -133,16 +119,6 @@ def add(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
     registers[instruction.rd] = operand1 + operand2
-    if debug:
-        instruction.print()
-        print_all(registers, memory)
-    registers['PC'] += 4
-    return registers
-
-def sub(instruction, registers, debug, memory): # Done/Working
-    operand1 = registers[instruction.rs] #value in rs
-    operand2 =  registers[instruction.rt] #value in rt
-    registers[instruction.rd] = operand1 - operand2
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -168,7 +144,7 @@ def bne(instruction, registers, debug, memory): # Done/Working
         instruction.print()
         print_all(registers, memory)
         print('hi')
-    if (operand1 != operand2):
+    if (str(operand1) != str(operand2)):
         registers['PC'] += (4 + (instruction.imm << 2))
     else:
         registers['PC'] += 4
@@ -176,6 +152,7 @@ def bne(instruction, registers, debug, memory): # Done/Working
     return registers
 
 def ori(instruction, registers, debug, memory): # Done/Working
+    #print(registers[instruction.rs])
     operand1 = registers[instruction.rs]
     imm = instruction.imm
     imm = sextb(int(imm), '16')
@@ -189,6 +166,7 @@ def ori(instruction, registers, debug, memory): # Done/Working
             oriVal = oriVal + '0'
         i += 1
     registers[instruction.rt] = oriVal
+    #print(operand1,operand2,oriVal)
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -196,8 +174,8 @@ def ori(instruction, registers, debug, memory): # Done/Working
     return registers
 
 def xor(instruction, registers, debug, memory): # Done/Working
-    operand1 = registers[instruction.rs]
-    operand2 = registers[instruction.rt]
+    operand1 = str(format(int(registers[instruction.rs]), '032b'))
+    operand2 = str(format(int(registers[instruction.rt]), '032b'))
     #print(operand1, operand2)
     xorVal = str()
     i = 0
@@ -217,31 +195,17 @@ def xor(instruction, registers, debug, memory): # Done/Working
     return registers
 
 def multu(instruction, registers, debug, memory): # Done/Working
-    operand1 = registers[instruction.rs]
-    operand2 = registers[instruction.rt]
-    product = format(int(operand1) * int(operand2)).zfill(64)
-    #product = str(bin(product)[2:0]).zfill(64)
-    registers['hi'] = product[0:32]
-    registers['lo'] = product[32:64]
-    print(product)
-    print(operand1,operand2,registers['hi'], registers['lo'])
-    if debug:
-        instruction.print()
-        print_all(registers, memory)
-    registers['PC'] += 4
-    return registers
-
-def mult(instruction, registers, debug, memory): # Done/Working
-    operand1 = registers[instruction.rs]
-    operand2 = registers[instruction.rt]
-    product = str(int(operand1) * int(operand2))
-    bits64 = 64 - len(product)
-    if(product[0] == '1'): # unsigned
-        product =   (bits64 * '1') + product # "bits64" adds the extra bits 
+    if(int(registers[instruction.rs]) > 0):
+        operand1 = int(registers[instruction.rs])
     else:
-        product = (bits64 * '0') + product
+        operand1 = int(str(registers[instruction.rs]), 2)
+    operand2 = int(str(registers[instruction.rt]), 2)
+    product = operand1 * operand2
+    product = format(product, '064b')
     registers['hi'] = product[0:32]
     registers['lo'] = product[32:64]
+    #print(product)
+    #print(operand1,operand2,registers['hi'], registers['lo'])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -266,20 +230,11 @@ def mflo(instruction, registers, debug, memory): # Done/Working
     registers['PC'] += 4
     return registers
 
-def sltu(instruction, registers, debug, memory):
-    operand1 = registers[instruction.rs]
-    operand2 = registers[instruction.rt]
-    registers[instruction.rd] = operand1 < operand2
-    if debug:
-        instruction.print()
-        print_all(registers, memory)
-    registers['PC'] += 4
-    return registers
-
 def slt(instruction, registers, debug, memory):
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    registers[instruction.rd] = operand1 < operand2
+    registers[instruction.rd] = int(int(operand1, 10) < int(operand2, 2)) # turn bool into 1 or 0
+    #print(int(operand1, 10),int(operand2, 2), registers[instruction.rd])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -308,12 +263,13 @@ def lui(instruction, registers, debug, memory): # Done/Working
     return registers
 
 def lbu(instruction, registers, debug, memory): # FIX ME!! needs to be unsigned operation
-    address = registers[instruction.rs]
-    offset = registers[instruction.imm]
-    byteLoc = int(hex(0x00000011), 16) << offset   # Correct???
-    byte = int(hex(memory[address]), 16) & byteLoc
+    address = int(registers[instruction.rs], 10)
+    offset = int(str(instruction.imm), 10)
+    print(address, offset)
+    byteLoc = 0x00000011 << offset   # Correct???
+    byte = memory[address] & byteLoc
     registers[instruction.rt] = byte
-    #print(address, offset, registers[instruction.rt])
+    print(address, offset, registers[instruction.rt])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -322,7 +278,7 @@ def lbu(instruction, registers, debug, memory): # FIX ME!! needs to be unsigned 
 
 def lb(instruction, registers, debug, memory): # Correct??
     address = registers[instruction.rs]
-    offset = registers[instruction.imm]
+    offset = instruction.imm
     byteLoc = int(hex(0x00000011), 16) << offset
     byte = memory[address] & byteLoc
     registers[instruction.rt] = byte
@@ -342,9 +298,9 @@ def lw(instruction, registers, debug, memory):
     return registers
 
 def sw(instruction, registers, debug, memory):
-    addr_index = registers[instruction.rs]
-    offset = instruction.imm
-    memory[hex(addr_index + offset)] = registers[instruction.rt]
+    addr_index = int(registers[instruction.rs])
+    offset = int(instruction.imm)
+    memory[addr_index + offset] = registers[instruction.rt]
     #print(addr_index, offset, registers[instruction.rd])
     if debug:
         instruction.print()
@@ -353,10 +309,10 @@ def sw(instruction, registers, debug, memory):
     return memory
 
 def sb(instruction, registers, debug, memory):
-    addr_index = registers[instruction.rs]
-    offset = instruction.imm
+    addr_index = int(registers[instruction.rs])
+    offset = int(instruction.imm)
     #print(addr_index, offset, registers[instruction.rt])
-    memory[hex(addr_index + offset)] = registers[instruction.rt]
+    memory[addr_index + offset] = registers[instruction.rt]
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -364,22 +320,18 @@ def sb(instruction, registers, debug, memory):
     return memory
 
 # dictionaries of functions
-r_types = {'100010':sub,
-           '100000':add,
+r_types = {'100000':add,
            '100110':xor,
            '011001':multu,
-           '011000':mult,
            '000010':srl,
            '010000':mfhi,
            '010010':mflo,
-           '101011':sltu,
            '101010':slt}
 i_types = {'001000':addi,
            '000100':beq,
            '000101':bne,
            '001101':ori,
            '101011':sw,
-           '001001':addiu,
            '001100':andi,
            '001111':lui,
            '100100':lbu,
