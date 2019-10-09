@@ -224,6 +224,7 @@ def decodeASM(readFile):
             line = line.split(",")
             addressAndOS = line[1]
             rt = format(int(line[0]),'05b')
+            print (rt)
             rs = format(int(addressAndOS[addressAndOS.index("(") + 1:addressAndOS.index(")")]), '05b')
             if(addressAndOS.count("0x")):
                 f.write(convertToHex(str(op) + str(rs) + str(rt) + str(getOffset(addressAndOS))))    
