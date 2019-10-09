@@ -43,6 +43,7 @@ class instruction():
         self.rt = int(self.binary_string[11:16], 2)
         self.rd = int(self.binary_string[16:21], 2)
         self.shamt = int(self.binary_string[21:26], 2) # shift amount
+        self.heximm = self.binary_string[16:32]
         if self.binary_string[16] == '1': # check the immediate for negative numbers and convert if needed
             self.imm = -((int(self.binary_string[16:32], 2) ^ 0xFFFF) + 1)
         else:
@@ -51,6 +52,8 @@ class instruction():
             self.name = func_dict[self.func] # this will lookup the string name of the function in func_dict
         except:
             self.name = 'null'
+    def heximm(self):
+        self.imm = self.binary_string[16:32]
     def print(self):
         if self.type == 'r_type':
             print(self.hex_num + ' is ' + self.name + ' $' + str(self.rd) + ', $' + str(self.rs) + ', $' + str(self.rt))
@@ -85,10 +88,20 @@ def print_all(registers, memory):
         print(value)
 
 # supported instruction functions
-def andi(instruction, registers, debug, memory):
+def andi(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
-    operand2 = instruction.imm
-    registers[instruction.rt] = operand1 & operand2
+    operand2 = str(instruction.heximm).zfill(32)
+    andVal = str()
+    i = 0
+    print(operand1,operand2)
+    while i < 32:
+        if (operand1[i] == '1' and operand2[i] == '1'):
+            andVal = andVal + '1'
+        else:
+            andVal = andVal + '0'
+        i += 1
+    registers[instruction.rt] = andVal
+    print(operand1,operand2,  registers[instruction.rt])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -107,7 +120,7 @@ def addi(instruction, registers, debug, memory): # Done/Working
     registers['PC'] += 4
     return registers
 
-def addiu(instruction, registers, debug, memory): # Done/Working????
+def addiu(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = instruction.imm
     registers[instruction.rt] = operand1 + operand2
@@ -181,10 +194,10 @@ def ori(instruction, registers, debug, memory): # Done/Working
     registers['PC'] += 4
     return registers
 
-def xor(instruction, registers, debug, memory): # FIX ME!!
+def xor(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = registers[instruction.rt]
-    #print(operand1+'hi'+operand2)
+    #print(operand1, operand2)
     xorVal = str()
     i = 0
     while i < 32:
@@ -194,9 +207,7 @@ def xor(instruction, registers, debug, memory): # FIX ME!!
             xorVal = xorVal + '0'
         i += 1
     registers[instruction.rd] = xorVal
-
     #print(operand1,operand2,xorVal)
-
     if debug:
         instruction.print()
         print_all(registers, memory)

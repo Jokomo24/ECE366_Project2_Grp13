@@ -101,7 +101,7 @@ def decodeASM(readFile):
             if(imm.count("0x")): # If offset = hex value \/
                 for item in range(imm.count("0x")):
                     imm = imm.replace('0x','')
-                    imm = format(int(imm, 16), '016b')
+                    imm = format(int(imm, 16),'016b')
             else: # If offset in decimal and/or negative
                 imm = format(int(imm),'016b') if (int(imm) >= 0) else format(65536 + int(imm),'016b')
             f.write(convertToHex(str('001100') + str(rs) + str(rt) + str(imm)))
