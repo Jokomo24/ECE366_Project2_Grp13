@@ -38,8 +38,8 @@ first_pass:
 	srl	$22, $13, 8
 	xor	$13, $21, $22			# C = C[15:8] ^ C[7:0]
 	
-	sb	$13, 0($23)			# val[$13] --> current address
-	addi	$23, $23, 1			# Address + 1 (8-bits)
+	sw	$13, 0($23)			# val[$13] --> current address
+	addi	$23, $23, 4			# Address + 4 (32-bits)
 	addi	$22, $0, 0x64			# Check if counter <= 100
 	bne	$22, $10, continue		# Loop if count <= 100
 
@@ -62,10 +62,10 @@ nxt_byte1:
 	lbu	$10, 0($23)			# True = store maxVal
 	sw	$23, 0x2000($0)			# Store address of current maxVal into M[0x2000]
 skip:
-	addi	$23, $23, -1			# Address - 1 (8-bits)
+	addi	$23, $23, -4			# Address - 4 (32-bits)
 	bne	$23, $22, nxt_byte1		# Branch if $23 != 0x2020
 	
-	sb	$10, 0x2004($0)			# Store maxVal into M[0x2004]
+	sw	$10, 0x2004($0)			# Store maxVal into M[0x2004]
 	
 #
 # Part B.ii
@@ -79,7 +79,7 @@ skip:
 nxt_byte2:
 	lbu	$11, 0($23)			# Load current byte from memory
 	addi	$13, $0, 4			# 4 count for 4 comparisons (3 zeros) 			
-	addi	$23, $23, 1			# Address + 1 (8-bits)
+	addi	$23, $23, 4			# Address + 4 (32-bits)
 nxt_bit:
 	andi	$12, $11, 0x1f			# Match?
 	bne	$12, $10, no_match1
@@ -111,9 +111,9 @@ nxt_byte3:
 	bne	$11, $10, no_match2
 	addi	$14, $14, 1			# yesCnt++
 no_match2:
-	addi	$23, $23, 1			# Address++
+	addi	$23, $23, 4			# Address + 4
 	bne	$23, $21, nxt_byte3
-	addi	$22, $22, 1			# Address++ of compare byte
+	addi	$22, $22, 4			# Address + 4 of compare byte
 	slt	$12, $14, $15			# compare with current max collision count
 	bne	$12, $0, LTmax
 	beq	$14, $15, LTmax			# Go with first occuring pattern

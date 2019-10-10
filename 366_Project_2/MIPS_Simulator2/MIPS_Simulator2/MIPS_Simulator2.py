@@ -1,5 +1,5 @@
 from decodeASM import *
-from ASMOperations import *
+stfrom ASMOperations import *
 
     #define registers and memory as dictionaries
 registers = {0: 0,
