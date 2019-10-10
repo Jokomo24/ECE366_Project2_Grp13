@@ -85,18 +85,10 @@ def print_all(registers, memory):
 
 # supported instruction functions
 def andi(instruction, registers, debug, memory): # Done/Working
-    operand1 = registers[instruction.rs]
-    operand2 = str(instruction.heximm).zfill(32)
-    andVal = str()
-    i = 0
-    #print(operand1,operand2)
-    while i < 32:
-        if (operand1[i] == '1' and operand2[i] == '1'):
-            andVal = andVal + '1'
-        else:
-            andVal = andVal + '0'
-        i += 1
-    registers[instruction.rt] = andVal
+    operand1 = format(int(registers[instruction.rs]), '032b')
+    operand2 = instruction.heximm
+    andVal = int(operand1,2) & int(operand2,2)
+    registers[instruction.rt] = bin(andVal)[2:]
     #print(operand1,operand2,  registers[instruction.rt])
     if debug:
         instruction.print()
@@ -143,8 +135,7 @@ def bne(instruction, registers, debug, memory): # Done/Working
     if debug:
         instruction.print()
         print_all(registers, memory)
-        print('hi')
-    if (str(operand1) != str(operand2)):
+    if (int(operand1) != int(operand2)):
         registers['PC'] += (4 + (instruction.imm << 2))
     else:
         registers['PC'] += 4
@@ -174,20 +165,10 @@ def ori(instruction, registers, debug, memory): # Done/Working
     return registers
 
 def xor(instruction, registers, debug, memory): # Done/Working
-    operand1 = str(format(int(registers[instruction.rs]), '032b'))
-    operand2 = str(format(int(registers[instruction.rt]), '032b'))
-    #print(operand1, operand2)
-    xorVal = str()
-    i = 0
-    while i < 32:
-        if (operand1[i] != operand2[i]):
-            xorVal = xorVal + '1'
-        else:
-            xorVal = xorVal + '0'
-        i += 1
-    registers[instruction.rd] = xorVal
-    #print(registers[instruction.rd])
-    #print(operand1,operand2,xorVal)
+    operand1 = int(str(registers[instruction.rs]), 2)
+    operand2 = int(registers[instruction.rt], 2)
+    registers[instruction.rd] = operand1 ^ operand2
+    #print(hex(operand1),hex(operand2),hex(int(registers[instruction.rd])))
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -242,9 +223,9 @@ def slt(instruction, registers, debug, memory):
     return registers
 
 def srl(instruction, registers, debug, memory): # Done/Working
-    operand1 = registers[instruction.rt]
-    operand2 = instruction.shamt          # good catch!
-    registers[instruction.rd] = operand2 * '0' + operand1[:-operand2]
+    operand1 = str(registers[instruction.rt])
+    operand2 = instruction.shamt         # good catch!
+    registers[instruction.rd] = bin(int(operand2 * '0' + operand1[:-operand2], 2))[2:]
     #print(operand1,operand2, registers[instruction.rd])
     if debug:
         instruction.shiftopprint()
@@ -265,11 +246,11 @@ def lui(instruction, registers, debug, memory): # Done/Working
 def lbu(instruction, registers, debug, memory): # FIX ME!! needs to be unsigned operation
     address = int(registers[instruction.rs], 10)
     offset = int(str(instruction.imm), 10)
-    print(address, offset)
+    #print(address, offset,registers['PC'])
     byteLoc = 0x00000011 << offset   # Correct???
     byte = memory[address] & byteLoc
     registers[instruction.rt] = byte
-    print(address, offset, registers[instruction.rt])
+    #print(address, offset, registers[instruction.rt])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -311,8 +292,8 @@ def sw(instruction, registers, debug, memory):
 def sb(instruction, registers, debug, memory):
     addr_index = int(registers[instruction.rs])
     offset = int(instruction.imm)
-    #print(addr_index, offset, registers[instruction.rt])
     memory[addr_index + offset] = registers[instruction.rt]
+    #print(addr_index, offset, int(registers[instruction.rt],2))
     if debug:
         instruction.print()
         print_all(registers, memory)
