@@ -145,6 +145,16 @@ def decodeASM(readFile):
             rt = format(int(line[1]),'05b')
             f.write(convertToHex(str('000000') + str(rs) + str(rt) + str('0000000000') + str(r_op)))
 
+    # mfold rd, rs, rt
+        # add rd, rs, rt
+        elif(line[0:5] == "mfold"): 
+            line = line.replace("mfold","")
+            line = line.split(",")
+            rd = format(int(line[0]),'05b')
+            rs = format(int(line[1]),'05b')
+            rt = format(int(line[2]),'05b')
+            f.write(convertToHex(str('000000') + str(rs) + str(rt) + str(rd) + str('00000010101')))
+
     # srl rd, rt, shamt
         elif(line[0:3] == "srl"): 
             line = line.replace("srl","")
