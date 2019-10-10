@@ -193,7 +193,7 @@ def multu(instruction, registers, debug, memory): # Done/Working
     registers['hi'] = hex(int(product[0:32], 2))
     registers['lo'] = hex(int(product[32:64], 2))
     print(hex(int(product,2)))
-    print(hex(operand1),hex(operand2,registers['hi'], registers['lo'])
+    print(hex(operand1),hex(operand2),registers['hi'], registers['lo'])
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -278,7 +278,7 @@ def lb(instruction, registers, debug, memory): # Correct??
 
 def lw(instruction, registers, debug, memory):
     offset = registers[instruction.imm]
-    registers[instruction.rt] = memory[hex(offset)]
+    registers[instruction.rt] = memory[offset]
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -287,7 +287,7 @@ def lw(instruction, registers, debug, memory):
 
 def sw(instruction, registers, debug, memory):
     addr_index = int(registers[instruction.rs])
-    offset = int(instruction.imm)
+    offset = int(sextb(instruction.imm, '16'), 2)
     memory[addr_index + offset] = hex(registers[instruction.rt])
     #print(addr_index, offset, registers[instruction.rd])
     if debug:
