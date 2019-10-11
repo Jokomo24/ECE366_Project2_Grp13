@@ -3,7 +3,6 @@ class instruction():
     func_dict = {'100000':'add',
                  '100110':'xor',
                  '011001':'multu',
-                 '010101':'mfold',
                  '000010':'srl',
                  '010000':'mfhi',
                  '010010':'mflo',
@@ -100,8 +99,7 @@ def andi(instruction, registers, debug, memory): # Done/Working
 def addi(instruction, registers, debug, memory): # Done/Working
     operand1 = registers[instruction.rs]
     operand2 = instruction.imm
-    #registers[instruction.rt] = str(int(operand1) + int(operand2))  # why are you storing a string here?
-    registers[instruction.rt] = int(operand1) + int(operand2)
+    registers[instruction.rt] = str(int(operand1) + int(operand2))
     #print(operand1,operand2, registers[instruction.rt])
     if debug:
         instruction.print()
@@ -179,92 +177,16 @@ def xor(instruction, registers, debug, memory): # Done/Working
 
 def multu(instruction, registers, debug, memory): # Done/Working
     if(int(registers[instruction.rs]) > 0):
-        #operand1 = int(registers[instruction.rs])
-        operand1 = registers[instruction.rs]
+        operand1 = int(registers[instruction.rs])
     else:
-        #operand1 = int(str(registers[instruction.rs]), 2)   # why are these strings at all?
         operand1 = int(str(registers[instruction.rs]), 2)
-#    operand2 = int(str(registers[instruction.rt]), 2)       # why are these strings at all?
-    operand2 = registers[instruction.rt]
+    operand2 = int(str(registers[instruction.rt]), 2)
     product = operand1 * operand2
     product = format(product, '064b')
     registers['hi'] = product[0:32]
     registers['lo'] = product[32:64]
     #print(product)
     #print(operand1,operand2,registers['hi'], registers['lo'])
-    if debug:
-        instruction.print()
-        print_all(registers, memory)
-    registers['PC'] += 4
-    return registers
-
-def mfold(instruction, registers, debug, memory): # CUSTOM INSTRUCTION, WORK IN PROGRESS
-                                                  # Multiply and XOR rs by rt 5 times,
-                                                  # XORing the most-sig and least-sig 32-bits each time,
-                                                  # then fold the result twice, resulting in 8 bit output
-    if(int(registers[instruction.rs]) > 0):
-        #operand1 = int(registers[instruction.rs])
-        operand1 = registers[instruction.rs]
-    else:
-        #operand1 = int(str(registers[instruction.rs]), 2)   # why are these strings at all?
-        operand1 = int(str(registers[instruction.rs]), 2)
-    for x in range(5):                          # multiply and xor 5 times, reloading operand2 from rt each iteration
-    #    operand2 = int(str(registers[instruction.rt]), 2)       # why are these strings at all?
-        operand2 = registers[instruction.rt]
-        # multiply
-        product = operand1 * operand2
-        product = format(product, '064b')
-        #registers['hi'] = product[0:32]
-        #registers['lo'] = product[32:64] # Instead, put hi and lo directly back into operand1 and operand2
-        operand1 = product[0:32]
-        operand2 = product[32:64]
-        # xor
-        operand1 = int(str(operand1), 2)
-        operand2 = int(operand2, 2)
-        operand1 = operand1 ^ operand2
-        #print(registers[instruction.rs],registers[instruction.rt])
-        #print(product)
-        #print(registers['hi'], registers['lo'])
-        #print(operand1,operand2,registers[instruction.rd])
-
-    # andi to grab the least-sig 16 bits
-    lsbs = format(int(operand1), '032b')
-    mask = 0xffff
-    #andVal = int(lsbs,2) & int(mask,2)
-    andVal = int(lsbs,2) & mask
-    lsbs = bin(andVal)[2:]
-    #print(operand1,operand2,  registers[instruction.rt])
-
-    # srl to grab the most-sig 16 bits
-    msbs = str(operand1)
-    shift = 0b10000
-    msbs = bin(int(shift * '0' + msbs[:-shift], 2))[2:]
-    #print(operand1,operand2, registers[instruction.rd])    
-
-    # xor for a 16-bit output
-    msbs = int(str(msbs), 2)
-    lsbs = int(lsbs, 2)
-    foldOne = msbs ^ lsbs
-
-    # andi to grab the least-sig 8 bits
-    lsbs = format(int(foldOne), '032b')
-    mask = 0xff
-    #andVal = int(lsbs,2) & int(mask,2)
-    andVal = int(lsbs,2) & mask
-    lsbs = bin(andVal)[2:]
-    #print(operand1,operand2,  registers[instruction.rt])
-
-    # srl to grab the most-sig 8 bits
-    msbs = str(foldOne)
-    shift = 0b01000
-    msbs = bin(int(shift * '0' + msbs[:-shift], 2))[2:]
-    #print(operand1,operand2, registers[instruction.rd])    
-
-    # xor for a 8-bit output
-    msbs = int(str(msbs), 2)
-    lsbs = int(lsbs, 2)
-    registers[instruction.rd] = msbs ^ lsbs
-#    registers[instruction.rd] = operand1 ^ operand2
     if debug:
         instruction.print()
         print_all(registers, memory)
@@ -382,7 +304,6 @@ def sb(instruction, registers, debug, memory):
 r_types = {'100000':add,
            '100110':xor,
            '011001':multu,
-           '010101':mfold, # custom instruction opcode
            '000010':srl,
            '010000':mfhi,
            '010010':mflo,
