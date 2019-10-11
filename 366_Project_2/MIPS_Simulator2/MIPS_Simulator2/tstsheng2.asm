@@ -78,7 +78,7 @@
 
 # CUSTOM INSTRUCTION
 # Perform custom instruction on initial values
-#    mfold   $13, $8, $9
+    mfold   $13, $8, $9
 
 # Compare results between control case and custom instruction
 # Flag positive register 14 if answers differ
