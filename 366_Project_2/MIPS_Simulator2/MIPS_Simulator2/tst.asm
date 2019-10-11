@@ -53,7 +53,7 @@ first_pass:
 #
 
 	addi	$10, $0, 0			# Initialize maxVal to 0
-	addi	$22, $0, 0x2020			# Hold address value 0x2020
+	addi	$23, $0, 0x2020			# Hold address value 0x2020
 	
 nxt_byte1:
 	lbu	$11, 0($23)			# Load current byte from memory
@@ -62,8 +62,10 @@ nxt_byte1:
 	lbu	$10, 0($23)			# True = store maxVal
 	sw	$23, 0x2000($0)			# Store address of current maxVal into M[0x2000]
 skip:
-	addi	$23, $23, -4			# Address - 4 (32-bits)
-	bne	$23, $22, nxt_byte1		# Branch if $23 != 0x2020
+	#addi	$21, $0, 0x2024			# Temp line
+	
+	addi	$23, $23, 4			# Address + 4 (32-bits)
+	bne	$23, $21, nxt_byte1		# Branch if $23 != last word
 	
 	sw	$10, 0x2004($0)			# Store maxVal into M[0x2004]
 	
@@ -73,7 +75,7 @@ skip:
 # | $13 = compareCnt | $14 = yesCnt | 
 # | $21 last byte in mem = temp2 | $23 = current address |
 #
-
+	addi	$23, $0, 0x2020			# Hold address value 0x2020
 	addi	$10, $0, 0x1f			# Five successive 1's starting from LSB
 	addi	$14, $0, 0			# Initialize yesCnt	
 nxt_byte2:
