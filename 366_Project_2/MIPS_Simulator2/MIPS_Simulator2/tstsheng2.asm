@@ -78,12 +78,12 @@
 
 # CUSTOM INSTRUCTION
 # Perform custom instruction on initial values
-    mfold   $13, $8, $9
+#    mfold   $13, $8, $9
 
 # Compare results between control case and custom instruction
 # Flag positive register 14 if answers differ
-    add    $14, $0, $0
+    addi    $14, $0, 0
     beq     $13, $12, negative
     addi    $14, $0, 1
 negative:
-    add    $14, $14, $0
+    addi    $14, $14, 0
